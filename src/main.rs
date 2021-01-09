@@ -1,14 +1,21 @@
+mod fns;
+
 use std::fs;
-use std::env;
+use crate::fns::{auth_post_req, post_req, get_req};
+use toml::Value;
 
-fn main() {
+struct Config {
+    url: String,
+    token: String
+}
 
-    // let client = reqwest::Client::new();
-    // let res = client.post("http://httpbin.org/post")
-    //     .body("the exact body that is sent")
-    //     .send()
-    //     .await?;
-    let contents = fs::read_to_string(&args[0].to_string())
-        .expect("Something went wrong reading the file");
-    println!("{}", contents)
+fn main(){
+    let config = fs::read_to_string("config.toml")
+        .expect("Error while finding file!")
+        .parse::<Value>()
+        .expect("Error while parsing config!");
+
+    let what_commit = get_req("http://whatthecommit.com/index.txt");
+
+    post_req(config["url"].as_str().unwrap(), what_commit);
 }
