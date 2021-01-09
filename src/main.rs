@@ -1,7 +1,7 @@
 mod fns;
 
 use std::fs;
-use crate::fns::{auth_post_req, post_req, get_req};
+use crate::fns::{post_req, get_req};
 use toml::Value;
 
 struct Config {
