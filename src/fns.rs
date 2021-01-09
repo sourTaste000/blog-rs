@@ -1,7 +1,7 @@
 use reqwest::Response;
 
 pub async fn auth_post_req(url: &str, auth: &str, body: String) -> Response {
-    if body.is_empty() || is_valid_http(url) || auth.is_empty() {
+    if body.is_empty() || !is_valid_http(url) || auth.is_empty() {
         panic!("Empty body/url/token!");
     }
 
@@ -15,7 +15,7 @@ pub async fn auth_post_req(url: &str, auth: &str, body: String) -> Response {
 
 
 pub async fn post_req(url: &str, body: String) -> Response {
-    if is_valid_http(url) {
+    if !is_valid_http(url) {
         panic!("Empty body/url!")
     }
 
@@ -28,7 +28,7 @@ pub async fn post_req(url: &str, body: String) -> Response {
 }
 
 pub async fn get_req(url: &str) -> String {
-    if is_valid_http(url) {
+    if !is_valid_http(url) {
         panic!("Empty url!")
     }
 
