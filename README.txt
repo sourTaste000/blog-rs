@@ -1,8 +1,6 @@
-paste-rs
+rs
 =========
 
-simple program that sends post request with file content to websites
+This repo stores all the projects that I've made while learning rust
 
-my initial attempt at trying to program something using rust :]
-
-probably the worst rust code that ever existed
+WARNING: probably the worst rust code that ever existed
