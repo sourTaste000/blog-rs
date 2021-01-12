@@ -1,16 +1,15 @@
-use reqwest::Response;
+use ureq::Response;
 
 pub async fn auth_post_req(url: &str, auth: &str, body: String) -> Response {
     if body.is_empty() || !is_valid_http(url) || auth.is_empty() {
         panic!("Empty body/url/token!");
     }
 
-    reqwest::Client::new().post(url)
-        .bearer_auth(auth)
-        .body(body)
-        .send()
-        .await
+    ureq::post(url)
+        .set("X-Auth-Token", auth)
+        .send_string(body.as_str())
         .unwrap()
+
 }
 
 
@@ -19,20 +18,19 @@ pub async fn post_req(url: &str, body: String) -> Response {
         panic!("Empty body/url!")
     }
 
-    reqwest::Client::new().post(url)
-        .body(body)
-        .send()
-        .await
+    ureq::post(url)
+        .send_string(body.as_str())
         .unwrap()
-
 }
 
-pub async fn get_req(url: &str) -> String {
+pub async fn get_req(url: &str) -> Response {
     if !is_valid_http(url) {
         panic!("Empty url!")
     }
 
-    reqwest::get(url).await.unwrap().text().await.unwrap()
+    ureq::get(url)
+        .call()
+        .unwrap()
 }
 
 #[inline]
