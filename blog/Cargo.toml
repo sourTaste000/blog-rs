@@ -1,0 +1,13 @@
+[package]
+name = "balls"
+version = "0.1.0"
+authors = ["sourTaste000 <47074495+sourTaste000@users.noreply.github.com>"]
+edition = "2018"
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+iron="0.5.1"
+mime="0.2.3"
+router="0.5.1"
+urlencoded="0.5.0"
