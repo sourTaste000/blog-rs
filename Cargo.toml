@@ -1,5 +1,5 @@
 [package]
-name = "balls"
+name = "blog"
 version = "0.1.0"
 authors = ["sourTaste000 <47074495+sourTaste000@users.noreply.github.com>"]
 edition = "2018"
