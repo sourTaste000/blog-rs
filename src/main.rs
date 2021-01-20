@@ -1,22 +1,24 @@
 extern crate iron;
+#[macro_use]
+extern crate mime;
 extern crate router;
 extern crate urlencoded;
 
-use iron::prelude::*;
-use iron::status;
-use router::Router;
-use urlencoded::UrlEncodedBody;
-use serde::{Serialize, Deserialize};
 use std::sync::{Arc, Mutex};
 
-#[macro_use]
-extern crate mime;
+use iron::prelude::*;
+use iron::status;
+use mime::SubLevel::Plain;
+use router::Router;
+use serde::{Deserialize, Serialize};
+use urlencoded::UrlEncodedBody;
+
 
 #[derive(Serialize, Deserialize)]
 struct Post {
     name: String,
     description: String,
-    contents: String
+    contents: String,
 }
 
 #[derive(Clone)]
@@ -28,7 +30,7 @@ fn main() {
     let posts: Vec<Post> = vec![Post {
         name: "First post!!".to_string(),
         description: "First post!!".to_string(),
-        contents: "First post!!".to_string()
+        contents: "First post!!".to_string(),
     }];
 
     let context = Context {
@@ -67,7 +69,7 @@ fn get_form(_request: &mut Request, context: &Context) -> IronResult<Response> {
             Content: {}
         </p>
     "#, last_post.name, last_post.description, last_post.name));
-    return Ok(response)
+    return Ok(response);
 }
 
 fn create_post(req: &mut Request, context: &Context) -> IronResult<Response> {
@@ -84,14 +86,15 @@ fn create_post(req: &mut Request, context: &Context) -> IronResult<Response> {
         serialized_json.push_str(format!("{} ", i).as_str())
     }
 
-    response.set_mut(status::Accepted);
+    println!("{}", serialized_json);
+
+    response.set_mut(status::Created);
     ctx_posts.push(serde_json::from_str(&serialized_json).unwrap());
     response.set_mut(mime!(Text/Plain; Charset=Utf8));
     response.set_mut(format!("Post Created! Post: {}", serialized_json));
 
-    return Ok(response)
+    return Ok(response);
 }
-
 /*
  {
         Err(err) => {
