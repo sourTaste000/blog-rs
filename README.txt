@@ -1,7 +1,7 @@
 blog-rs
 ========
 
-tiny blog website powered by Iron. (92 sloc!)
+tiny blog backend powered by Iron. (92 sloc!)
 
 
 
