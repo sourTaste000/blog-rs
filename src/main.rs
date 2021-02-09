@@ -8,11 +8,9 @@ use std::sync::{Arc, Mutex};
 
 use iron::prelude::*;
 use iron::status;
-use mime::SubLevel::Plain;
 use router::Router;
 use serde::{Deserialize, Serialize};
 use urlencoded::UrlEncodedBody;
-
 
 #[derive(Serialize, Deserialize)]
 struct Post {
@@ -23,7 +21,7 @@ struct Post {
 
 #[derive(Clone)]
 struct Context {
-    posts: Arc<Mutex<Vec<Post>>>
+    posts: Arc<Mutex<Vec<Post>>>,
 }
 
 fn main() {
@@ -34,41 +32,52 @@ fn main() {
     }];
 
     let context = Context {
-        posts: Arc::new(Mutex::new(posts))
+        posts: Arc::new(Mutex::new(posts)),
     };
 
     let mut router = Router::new();
     {
         let context = context.clone();
-        router.get("/", move |request: &mut Request| get_form(request, &context), "root");
+        router.get(
+            "/",
+            move |request: &mut Request| latest_post(request, &context),
+            "root",
+        );
     }
     {
         let context = context.clone();
-        router.post("/create", move |request: &mut Request| create_post(request, &context), "create");
+        router.post(
+            "/create",
+            move |request: &mut Request| create_post(request, &context),
+            "create",
+        );
+    }
+    {
+        let context = context.clone();
+        router.get(
+            "/all",
+            move |request: &mut Request| view_posts(request, &context),
+            "all",
+        );
     }
 
     Iron::new(router).http("localhost:3000").unwrap();
 }
 
-fn get_form(_request: &mut Request, context: &Context) -> IronResult<Response> {
+fn latest_post(_request: &mut Request, context: &Context) -> IronResult<Response> {
     let mut response = Response::new();
     let posts = &context.posts.lock().unwrap();
 
     response.set_mut(status::Ok);
-    response.set_mut(mime!(Text/Html; Charset=Utf8));
+    response.set_mut(mime!(Text/Plain; Charset=Utf8));
     let last_post = posts.last().unwrap();
-    response.set_mut(format!(r#"
-        <form action="/create" method="post">
-          <input type="text" name="new_post"> </input>
-          <button type="submit">Create!</button>
-        </form>
-        <p>
+    response.set_mut(format!(
+        r#"
             Latest post:
-            Title: {}
-            Description: {}
-            Content: {}
-        </p>
-    "#, last_post.name, last_post.description, last_post.name));
+            {}
+    "#,
+        serde_json::to_string(last_post).unwrap()
+    ));
     return Ok(response);
 }
 
@@ -95,17 +104,13 @@ fn create_post(req: &mut Request, context: &Context) -> IronResult<Response> {
 
     return Ok(response);
 }
-/*
- {
-        Err(err) => {
-            response.set_mut(status::BadRequest);
-            response.set_mut(mime!(Text/Plain; Charset=Utf8));
-            response.set_mut(format!("{}", err))
-        }
-        Ok(ok) => {
-            response.set_mut(status::Continue);
-            response.set_mut(mime!(Text/Plain; Charset=Utf8));
-            response.set_mut(format!("Processing: {}", ok))
-        }
-    };
- */
+
+fn view_posts(_req: &mut Request, context: &Context) -> IronResult<Response> {
+    let mut response = Response::new();
+    let posts = context.posts.lock().unwrap();
+
+    response.set_mut(status::Ok);
+    response.set_mut(mime!(Text/Plain; Charset=Utf8));
+    response.set_mut(serde_json::to_string(&*posts).unwrap());
+    return Ok(response);
+}
