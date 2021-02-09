@@ -7,10 +7,12 @@ extern crate urlencoded;
 use std::sync::{Arc, Mutex};
 
 use iron::prelude::*;
-use iron::status;
+use iron::{status};
 use router::Router;
 use serde::{Deserialize, Serialize};
 use urlencoded::UrlEncodedBody;
+use std::fs::File;
+use std::io::Write;
 
 #[derive(Serialize, Deserialize)]
 struct Post {
@@ -101,6 +103,9 @@ fn create_post(req: &mut Request, context: &Context) -> IronResult<Response> {
     ctx_posts.push(serde_json::from_str(&serialized_json).unwrap());
     response.set_mut(mime!(Text/Plain; Charset=Utf8));
     response.set_mut(format!("Post Created! Post: {}", serialized_json));
+
+    let mut file = File::create(".posts.json").unwrap();
+    file.write_all(format!("{}", serde_json::to_string(&*ctx_posts).unwrap()).as_bytes()).unwrap();
 
     return Ok(response);
 }
