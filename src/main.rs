@@ -40,7 +40,7 @@ fn main() {
     let mut router = Router::new();
     {
         let context = context.clone();
-        router.get("/", move |request: &mut Request| get_form(request, &context), "root");
+        router.get("/", move |request: &mut Request| latest_post(request, &context), "root");
     }
     {
         let context = context.clone();
@@ -54,7 +54,7 @@ fn main() {
     Iron::new(router).http("localhost:3000").unwrap();
 }
 
-fn get_form(_request: &mut Request, context: &Context) -> IronResult<Response> {
+fn latest_post(_request: &mut Request, context: &Context) -> IronResult<Response> {
     let mut response = Response::new();
     let posts = &context.posts.lock().unwrap();
 
@@ -62,10 +62,6 @@ fn get_form(_request: &mut Request, context: &Context) -> IronResult<Response> {
     response.set_mut(mime!(Text/Html; Charset=Utf8));
     let last_post = posts.last().unwrap();
     response.set_mut(format!(r#"
-        <form action="/create" method="post">
-          <input type="text" name="new_post"> </input>
-          <button type="submit">Create!</button>
-        </form>
         <p>
             Latest post:
             Title: {}
