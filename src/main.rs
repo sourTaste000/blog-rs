@@ -46,6 +46,10 @@ fn main() {
         let context = context.clone();
         router.post("/create", move |request: &mut Request| create_post(request, &context), "create");
     }
+    {
+        let context = context.clone();
+        router.get("/all", move |request: &mut Request| view_posts(request, &context), "all");
+    }
 
     Iron::new(router).http("localhost:3000").unwrap();
 }
@@ -95,6 +99,17 @@ fn create_post(req: &mut Request, context: &Context) -> IronResult<Response> {
 
     return Ok(response);
 }
+
+fn view_posts(reg: &mut Request, context: &Context) -> IronResult<Response> {
+    let mut response = Response::new();
+    let mut ctx_posts = context.posts.lock().unwrap();
+
+    response.set_mut(status::Ok);
+    response.set_mut(mime!(Text/Plain; Charset=Utf8));
+    response.set_mut(serde_json::to_string(&ctx_posts)).unwrap();
+    return Ok(response);
+}
+
 /*
  {
         Err(err) => {
